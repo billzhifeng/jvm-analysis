@@ -1,0 +1,111 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.github.java.demo</groupId>
+	<artifactId>java-demo</artifactId>
+	<version>1.0.0</version>
+
+	<parent>
+		<groupId>com.github.project</groupId>
+		<artifactId>project-parent</artifactId>
+		<version>1.0.2018061401</version>
+	</parent>
+
+	<dependencies>
+		<!-- 单数据源 -->
+		<dependency>
+			<groupId>com.github.druid.starter</groupId>
+			<artifactId>spring-boot-single-druid-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.java.common.lang</groupId>
+			<artifactId>java-common-lang</artifactId>
+		</dependency>
+		<!-- zk redis diamond dubbo 等配置访问 <dependency> <groupId>com.github.resouce-utils</groupId> 
+			<artifactId>spring-boot-resource-utils-starter</artifactId> </dependency> -->
+		<!-- web服务 有页面 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<!-- 监控权限 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<!-- java工具类 -->
+		<dependency>
+			<groupId>com.github.java.common.lang</groupId>
+			<artifactId>java-common-lang</artifactId>
+		</dependency>
+		<!-- 权限 -->
+		<dependency>
+			<groupId>org.codehaus.janino</groupId>
+			<artifactId>janino</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sourceforge.nekohtml</groupId>
+			<artifactId>nekohtml</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+	</dependencies>
+	
+	<repositories>
+		<repository>
+			<id>nexus_public</id>
+			<url>http://localhost:8081/nexus/content/groups/public/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>nexus_public</id>
+			<url>http://localhost:8081/nexus/content/groups/public/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<dependencies>
+					<dependency>
+						<groupId>org.springframework</groupId>
+						<artifactId>springloaded</artifactId>
+						<version>1.2.6.RELEASE</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+		</plugins>
+		<finalName>java-app</finalName>
+	</build>
+</project>

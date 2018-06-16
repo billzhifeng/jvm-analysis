@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TPS</title>
+	<script src="/js/jquery-3.2.1.min.js"></script>
+<style type="text/css">
+    
+</style>
+<script type="text/javascript">
+	//压测功能启用标志
+	var startFlag = false;
+
+	$(document).ready(function(){
+		$.ajax({ 
+	        type: "get", 
+	        url: "/account/pay/viewThreadPool", 
+	        dataType: "json", 
+	        success: function (data) { 
+	        	if("Y"==data.status){
+	        		$("#threadPoolExecutorInfo").val(data.before); 
+	        	}
+	        }
+		});
+	});
+	
+    setInterval(function () {
+    	if(false==startFlag){
+    		return;
+    	}
+    	
+    	$.ajax({ 
+            type: "get", 
+            url: "/account/pay/viewTPS", 
+            dataType: "json", 
+            success: function (data) {
+            	
+            	//压测中
+            	if(true==data.isRun){
+            		$("#period").val(data.period);
+            		$("#userCount").val(data.userCount);
+            		$("#accountCount").val(data.accountCount);
+            		$("#accountTPS").val(data.accountTPS);
+                	
+                	$("#currentAccountTPS").val(data.currentAccountTPS);
+                	$("#maxAccountingTPS").val(data.maxAccountingTPS);
+                	$("#minAccountingTPS").val(data.minAccountingTPS);
+                	$("#successCount").val(data.successCount);
+                	$("#failCount").val(data.failCount);
+                	$("#threadPoolExecutorInfo").val(data.threadPoolExecutorInfo);
+                	$("#isRun").val("压测中");
+                	$("#startAccountBtn").attr('disabled',true); 
+                	$("#stopBtn").attr('disabled',false);  
+                	
+                	
+                	$("#acctInfo").val(data.acctInfo); 
+                	
+            	}else{
+            		$("#isRun").val("压测停止");
+            		$("#stopBtn").attr('disabled',true);  
+                	$("#startAccountBtn").attr('disabled',false);  
+            	}
+            }
+   	 	});
+        
+    }, 3600);
+    
+    function startAccount(){
+    	startFlag = true;
+    	
+    	$("#startAccountBtn").attr('disabled',true); 
+    	
+    	$.ajax({ 
+            type: "get", 
+            url: "/account/pay/start", 
+            dataType: "json", 
+            success: function (data) { 
+            	
+            	if("Y"==data.status){
+            		$("#isRun").val("支付压测中");
+            	}else{
+            		alert(data.msg);
+            	}
+            	
+            	$("#stopBtn").attr('disabled',false);  
+            }
+   	 	});
+    }
+    
+    function stop(){
+    	$.ajax({ 
+            type: "get", 
+            url: "/account/pay/stop", 
+            dataType: "json", 
+            success: function (data) { 
+            	
+            	if("Y"==data.status){
+            		$("#isRun").val("压测停止");
+            	}
+            	$("#stopBtn").attr('disabled',true);  
+            	
+            	$("#startAccountBtn").attr('disabled',false);  
+            }
+   	 	});
+    	
+    }
+    
+    function changeUserCount(){
+    	var userCount = $("#userCount").val();
+    	
+    	$("#changeUserCount").attr('disabled',true); 
+    	$.ajax({ 
+            type: "get", 
+            url: "/account/pay/changeUserCount/"+userCount, 
+            dataType: "json", 
+            success: function (data) { 
+            	
+            	if("Y"==data.status){
+            		alert("修改客户端数量成功");
+            		
+            		$("#userCount").val(userCount);
+            	}
+            	$("#changeUserCount").attr('disabled',false);  
+            }
+   	 	});
+    	
+    }
+
+    function changeThreadPoolSize(){
+		var size = $("#poolSize").val();
+		$.ajax({ 
+	        type: "get", 
+	        url: "/account/pay/setThreadPoolSize/"+size, 
+	        dataType: "json", 
+	        success: function (data) { 
+	        	
+	        	if("Y"==data.status){
+	        		$("#threadPoolExecutorInfo").val(data.before); 
+	        		$("#after").val(data.after); 
+	        	}
+	        }
+		});
+		
+	}
+    
+    function changeAcctNums(){
+		var payerNum = $("#payerNum").val();
+		var payeeNum = $("#payeeNum").val();
+		$.ajax({ 
+	        type: "get", 
+	        url: "/changeAcctNums/"+payerNum+"/"+payeeNum, 
+	        dataType: "json", 
+	        success: function (data) { 
+	        	if("Y"==data.status){
+	        		$("#acctInfo").val(data.before+"\n"+data.after); 
+	        	}
+	        }
+		});
+		
+	}
+
+</script>
+</head>
+
+<body>
+	<B>支付 压测TPS信息</B><br>
+	<div>
+		<input id="isRun" type="text" value="未开始压测"/><br>
+		<button id="stopBtn" onclick="stop()" disabled="disabled">停止压测数据归0</button><br><br>
+	</div>
+	<div>
+		<button id="startAccountBtn" onclick="startAccount()" >开始压测支付</button>
+	</div>
+	<div>
+		压测时间:<input type="text" id="period" value='0'/>秒<br>
+		调用客户端数量:<input type="text" id="userCount" value="2"/>个 <button id="changeUserCount" onclick="changeUserCount()" >改变客户端数量</button><br>
+		平均入账TPS:<input type="text" id="accountTPS" value='0'/><br>
+		当前入账TPS:<input type="text" id="currentAccountTPS" value='0'/><br>
+		最大入账TPS:<input type="text" id="maxAccountingTPS" value='0'/><br>
+		最小入账TPS:<input type="text" id="minAccountingTPS" value='0'/><br>
+		<br>
+		成功数量:<input type="text" id=successCount value='0'/><br>
+		失败数量:<input type="text" id="failCount" value='0'/><br>
+		<br>
+		累计入账数量:<input type="text" id="accountCount" value='0'/><br>
+		累计冲正数量:<input type="text" id="reverseCount" value='0'/><br>
+	</div>
+
+	<div>
+		threadPoolExecutorInfo: <input id="poolSize" type="text" value="10"/>
+		<button id="startBtn" onclick="changeThreadPoolSize()" >改变 poolSize</button><br> 
+		<textarea id="threadPoolExecutorInfo" rows="8" cols="80"/>
+	</div>
+	<div>
+		改变poolSize后<br> 
+		<textarea id="after" rows="8" cols="80" />
+	</div>
+	
+	<div>
+		收款账户数量: <input id="payeeNum" type="text" value="1"/>
+		付款账户数量: <input id="payerNum" type="text" value="10"/>
+		<button id="startBtn" onclick="changeAcctNums()" >改变 收款付款账户数量</button><br> 
+		<textarea id="acctInfo" rows="2" cols="80"/>
+	</div>
+</body>
+</html>
