@@ -1,17 +1,17 @@
 package com.github.scaffold.hashmap;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 模拟HashMap循环现象
+ * 模拟ConcurrentHashMap循环现象
  * 
  * @author wangzhifeng
  * @date 2018年6月16日 下午5:33:31
  */
-public class HashmapDeadLock {
-    private HashMap hash = new HashMap();
+public class CurrentHashmap {
+    private ConcurrentHashMap hash = new ConcurrentHashMap();
 
-    public HashmapDeadLock() {
+    public CurrentHashmap() {
         Thread t1 = new Thread() {
             public void run() {
                 for (int i = 0; i < 50000; i++) {
@@ -33,6 +33,6 @@ public class HashmapDeadLock {
     }
 
     public static void main(String[] args) {
-        new HashmapDeadLock();
+        new CurrentHashmap();
     }
 }

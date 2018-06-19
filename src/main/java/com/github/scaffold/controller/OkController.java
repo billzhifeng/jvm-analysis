@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.java.common.utils.DateUtil;
 import com.github.scaffold.dal.dao.AcctDOMapper;
 import com.github.scaffold.dal.dataobject.AcctDO;
+import com.github.scaffold.hashmap.CurrentHashmap;
+import com.github.scaffold.hashmap.HashmapDeadLock;
 import com.github.scaffold.pressure.DataWarehouse;
 import com.github.scaffold.pressure.enums.AcctTypeEnum;
 
@@ -30,14 +32,55 @@ import com.github.scaffold.pressure.enums.AcctTypeEnum;
 public class OkController {
     final Logger log = LoggerFactory.getLogger(getClass());
 
-    @RequestMapping(value = "/ok", method = { RequestMethod.GET })
-    public String ok() {
-        return "/OK";
+    @RequestMapping(value = { "/", "/index" }, method = { RequestMethod.GET })
+    public String index() {
+        return "/index";
     }
 
     @RequestMapping(value = "/showView", method = { RequestMethod.GET })
     public String view(HttpServletRequest req, Model map) {
         return "/TPS";
+    }
+
+    @RequestMapping(value = "/showHigh", method = { RequestMethod.GET })
+    public String showHigh(HttpServletRequest req, Model map) {
+        return "/high";
+    }
+
+    @RequestMapping(value = "/hashmapDeadLock/{loopNums}", method = RequestMethod.GET)
+    @ResponseBody
+    public String HashmapDeadLock(@PathVariable("loopNums") Integer loopNums) {
+        log.info("start HashmapDeadLock req:{}次", loopNums);
+        if (null == loopNums || 0 == loopNums) {
+            loopNums = 50;
+        }
+        final int finalLoopNums = loopNums;
+        new Thread(() -> exeHashmapDeadLock(finalLoopNums)).start();
+        return "STARTED";
+    }
+
+    @RequestMapping(value = "/currentHashmap/{loopNums}", method = RequestMethod.GET)
+    @ResponseBody
+    public String currentHashmap(@PathVariable("loopNums") Integer loopNums) {
+        log.info("start currentHashmap req:{}次", loopNums);
+        if (null == loopNums || 0 == loopNums) {
+            loopNums = 50;
+        }
+        final int finalLoopNums = loopNums;
+        new Thread(() -> exeCurrentHashmap(finalLoopNums)).start();
+        return "STARTED";
+    }
+
+    private void exeCurrentHashmap(final int finalLoopNums) {
+        for (int i = 0; i < finalLoopNums; i++) {
+            CurrentHashmap hash = new CurrentHashmap();
+        }
+    }
+
+    private void exeHashmapDeadLock(final int finalLoopNums) {
+        for (int i = 0; i < finalLoopNums; i++) {
+            HashmapDeadLock dead = new HashmapDeadLock();
+        }
     }
 
     @Autowired
@@ -46,6 +89,7 @@ public class OkController {
     @RequestMapping(value = "/db", method = RequestMethod.GET)
     @ResponseBody
     public AcctDO db() {
+
         return acctDOMapper.selectByPrimaryKey(1L);
     }
 

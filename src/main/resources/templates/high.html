@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>验证CPU Memory占用过高信息</title>
+	<script src="/js/jquery-3.2.1.min.js"></script>
+<style type="text/css">
+    
+</style>
+<script type="text/javascript">
+
+	$(document).ready(function(){
+		$.ajax({ 
+	        type: "get", 
+	        url: "/viewCpuMem", 
+	        dataType: "json", 
+	        success: function (data) { 
+	        	if("Y"==data.status){
+	        		$("#executeInfo").val(data.msg); 
+	        	}
+	        }
+		});
+	});
+	
+    setInterval(function () {
+    	
+    	$.ajax({ 
+            type: "get", 
+            url: "/viewCpuMem", 
+            dataType: "json", 
+            success: function (data) {
+            	if("Y"==data.status){
+	        		$("#executeInfo").val(data.msg); 
+	        	}
+            }
+   	 	});
+        
+    }, 3600);
+    
+    function startCpu(){
+    	var milliSeconds = $("#milliSeconds").val();
+    	$("#startCpuBtn").attr('disabled',true); 
+    	
+    	$.ajax({ 
+            type: "get", 
+            url: "/callCPU/"+milliSeconds, 
+            dataType: "json", 
+            success: function (data) { 
+            	
+            	if("Y"==data.status){
+            		$("#executeInfo").val(data.msg);
+            	}else{
+            		alert(data.msg);
+            	}
+            	
+            	$("#stopCpuBtn").attr('disabled',false);  
+            }
+   	 	});
+    }
+    
+    function stopCpu(){
+    	$.ajax({ 
+            type: "get", 
+            url: "/stopCPU", 
+            dataType: "json", 
+            success: function (data) { 
+            	
+            	if("Y"==data.status){
+            		$("#executeInfo").val(data.msg);
+            	}
+            	$("#stopCpuBtn").attr('disabled',true);  
+            	
+            	$("#startCpuBtn").attr('disabled',false);  
+            }
+   	 	});
+    	
+    }
+    
+    
+    function startMem(){
+    	$("#startMemBtn").attr('disabled',true); 
+    	
+    	$.ajax({ 
+            type: "get", 
+            url: "/callMem", 
+            dataType: "json", 
+            success: function (data) { 
+            	
+            	if("Y"==data.status){
+            		$("#executeInfo").val(data.msg);
+            	}else{
+            		alert(data.msg);
+            	}
+            	
+            	$("#stopMemBtn").attr('disabled',false);  
+              	$("#resetMem").attr('disabled',false);  
+            	
+            }
+   	 	});
+    }
+    
+    function stopMem(){
+    	$.ajax({ 
+            type: "get", 
+            url: "/stopMem", 
+            dataType: "json", 
+            success: function (data) { 
+            	
+            	if("Y"==data.status){
+            		$("#executeInfo").val(data.msg);
+            	}
+            	$("#stopMemBtn").attr('disabled',true);  
+            	
+            	$("#startMemBtn").attr('disabled',false);  
+            }
+   	 	});
+    	
+    }
+    
+    function resetMem(){
+    	$.ajax({ 
+            type: "get", 
+            url: "/resetMem", 
+            dataType: "json", 
+            success: function (data) { 
+            	
+            	if("Y"==data.status){
+            		$("#executeInfo").val(data.msg);
+            	}
+            	
+            }
+   	 	});
+    	
+    }
+    
+</script>
+</head>
+
+<body>
+	<B>验证CPU\Memory占用过高信息</B><br>
+	<div>
+		每次sleep=[<input type="text" id="milliSeconds" value="20" /> ]毫秒，<button id="startCpuBtn" onclick="startCpu()" >开始cpu调用</button><br>
+		<button id="stopCpuBtn" onclick="stopCpu()" disabled="disabled">停止cpu调用并归0</button><br><br>
+	</div>
+	<div>
+		<button id="startMemBtn" onclick="startMem()" >开始Memory调用</button><br>
+		<button id="stopMemBtn" onclick="stopMem()" disabled="disabled">停止Memory调用，但不归0</button><br><br>
+		<button id="resetMem" onclick="resetMem()" disabled="disabled">重置归0</button><br><br>
+	</div>
+
+	<div>
+		测试cpu & memory情况: <br>
+		<textarea id="executeInfo" rows="2" cols="60"/>
+	</div>
+	
+</body>
+</html>
