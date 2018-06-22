@@ -90,6 +90,7 @@
     }
     
     function stop(){
+    	startFlag = false;
     	$.ajax({ 
             type: "get", 
             url: "/account/pay/stop", 

@@ -15,19 +15,13 @@ public class MockOutServiceWithSleep {
 
     public ReturnData queryDataWithSleep(Long millisSeconds) {
 
-        log.info("收到请求,开始sleep millisSeconds={}", millisSeconds);
+        log.debug("收到请求,开始sleep millisSeconds={}", millisSeconds);
         try {
             Thread.sleep(millisSeconds);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         return ReturnData.buildData();
-    }
-
-    public ReturnBigData queryBigData() {
-
-        log.info("收到请求,返回大数据");
-        return ReturnBigData.buildBigData();
     }
 
 }

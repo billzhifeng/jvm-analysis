@@ -10,6 +10,9 @@
     
 </style>
 <script type="text/javascript">
+	
+	//压测功能启用标志
+	var startFlag = false;
 
 	$(document).ready(function(){
 		$.ajax({ 
@@ -19,13 +22,16 @@
 	        success: function (data) { 
 	        	if("Y"==data.status){
 	        		$("#executeInfo").val(data.msg); 
+	        		$("#threadPoolExecutorInfo").val(data.before); 
 	        	}
 	        }
 		});
 	});
 	
     setInterval(function () {
-    	
+    	if(false==startFlag){
+    		return;
+    	}
     	$.ajax({ 
             type: "get", 
             url: "/viewCpuMem", 
@@ -33,6 +39,7 @@
             success: function (data) {
             	if("Y"==data.status){
 	        		$("#executeInfo").val(data.msg); 
+	        		$("#threadPoolExecutorInfo").val(data.before); 
 	        	}
             }
    	 	});
@@ -40,12 +47,12 @@
     }, 3600);
     
     function startCpu(){
-    	var milliSeconds = $("#milliSeconds").val();
-    	$("#startCpuBtn").attr('disabled',true); 
+    	startFlag = true;
+    	var loopCount = $("#loopCount").val();
     	
     	$.ajax({ 
             type: "get", 
-            url: "/callCPU/"+milliSeconds, 
+            url: "/callCPU/"+loopCount, 
             dataType: "json", 
             success: function (data) { 
             	
@@ -54,37 +61,18 @@
             	}else{
             		alert(data.msg);
             	}
-            	
-            	$("#stopCpuBtn").attr('disabled',false);  
             }
    	 	});
     }
-    
-    function stopCpu(){
-    	$.ajax({ 
-            type: "get", 
-            url: "/stopCPU", 
-            dataType: "json", 
-            success: function (data) { 
-            	
-            	if("Y"==data.status){
-            		$("#executeInfo").val(data.msg);
-            	}
-            	$("#stopCpuBtn").attr('disabled',true);  
-            	
-            	$("#startCpuBtn").attr('disabled',false);  
-            }
-   	 	});
-    	
-    }
-    
     
     function startMem(){
+    	startFlag = true;
     	$("#startMemBtn").attr('disabled',true); 
+    	var clientCounts = $("#memClientCount").val();
     	
     	$.ajax({ 
             type: "get", 
-            url: "/callMem", 
+            url: "/callMem/"+clientCounts, 
             dataType: "json", 
             success: function (data) { 
             	
@@ -102,6 +90,7 @@
     }
     
     function stopMem(){
+    	startFlag = false;
     	$.ajax({ 
             type: "get", 
             url: "/stopMem", 
@@ -110,6 +99,7 @@
             	
             	if("Y"==data.status){
             		$("#executeInfo").val(data.msg);
+            		//alert(data.msg);
             	}
             	$("#stopMemBtn").attr('disabled',true);  
             	
@@ -135,25 +125,103 @@
     	
     }
     
+    function changeThreadPoolSize(){
+		var size = $("#poolSize").val();
+		$.ajax({ 
+	        type: "get", 
+	        url: "/cpu/setThreadPoolSize/"+size, 
+	        dataType: "json", 
+	        success: function (data) { 
+	        	
+	        	if("Y"==data.status){
+	        		$("#threadPoolExecutorInfo").val(data.before); 
+	        		$("#after").val(data.after); 
+	        	}
+	        }
+		});
+		
+	}
+    
+    function startBlock(){
+    	startFlag = true;
+    	
+    	var millisSeconds = $("#blockMillisSeconds").val();
+    	var blockClientCounts = $("#blockClientCount").val();
+    	$("#startBlockBtn").attr('disabled',true); 
+    	
+    	$.ajax({ 
+            type: "get", 
+            url: "/callSysBlock/"+millisSeconds+"/"+blockClientCounts, 
+            dataType: "json", 
+            success: function (data) { 
+            	
+            	if("Y"==data.status){
+            		$("#executeInfo").val(data.msg);
+            	}else{
+            		alert(data.msg);
+            	}
+            	
+            	$("#stopBlockBtn").attr('disabled',false);  
+            }
+   	 	});
+    }
+    
+    function stopBlock(){
+    	startFlag = false;
+    	$.ajax({ 
+            type: "get", 
+            url: "/stopSysBlock", 
+            dataType: "json", 
+            success: function (data) { 
+            	
+            	if("Y"==data.status){
+            		$("#executeInfo").val(data.msg);
+            		//alert(data.msg);
+            	}
+            	$("#stopBlockBtn").attr('disabled',true);  
+            	
+            	$("#startBlockBtn").attr('disabled',false);  
+            }
+   	 	});
+    	
+    }
+    
 </script>
 </head>
 
 <body>
 	<B>验证CPU\Memory占用过高信息</B><br>
 	<div>
-		每次sleep=[<input type="text" id="milliSeconds" value="20" /> ]毫秒，<button id="startCpuBtn" onclick="startCpu()" >开始cpu调用</button><br>
-		<button id="stopCpuBtn" onclick="stopCpu()" disabled="disabled">停止cpu调用并归0</button><br><br>
+		最大循环数量<input type="text" id="loopCount" value="1000000" /> 个<br>
+		<button id="startCpuBtn" onclick="startCpu()" >开始cpu调用</button><br>
 	</div>
+	<br>
 	<div>
+		调用客户端数量<input type="text" id="memClientCount" value="1" /> 个<br>
 		<button id="startMemBtn" onclick="startMem()" >开始Memory调用</button><br>
-		<button id="stopMemBtn" onclick="stopMem()" disabled="disabled">停止Memory调用，但不归0</button><br><br>
-		<button id="resetMem" onclick="resetMem()" disabled="disabled">重置归0</button><br><br>
+		<button id="stopMemBtn" onclick="stopMem()" disabled="disabled">停止Memory调用，但不归0</button><br>
+		<button id="resetMem" onclick="resetMem()" disabled="disabled">重置list内容归0</button><br><br>
+	</div>
+	
+	<div>
+		外部接口阻塞时间 <input type="text" id="blockMillisSeconds" value="1000" /> 毫秒<br>
+		调用客户端数量<input type="text" id="blockClientCount" value="1" /> 个<br>
+		<button id="startBlockBtn" onclick="startBlock()" >系统响应缓慢开始</button><br>
+		<button id="stopBlockBtn" onclick="stopBlock()" disabled="disabled">停止系统响应缓慢并归0</button><br><br>
 	</div>
 
 	<div>
 		测试cpu & memory情况: <br>
 		<textarea id="executeInfo" rows="2" cols="60"/>
 	</div>
-	
+    <div>
+		threadPoolExecutorInfo: <input id="poolSize" type="text" value="5"/>
+		<button onclick="changeThreadPoolSize()" >改变 poolSize</button><br> 
+		<textarea id="threadPoolExecutorInfo" rows="8" cols="80"/>
+	</div>
+	<div>
+		改变poolSize后<br> 
+		<textarea id="after" rows="8" cols="80" />
+	</div>
 </body>
 </html>

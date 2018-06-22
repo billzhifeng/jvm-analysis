@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.java.common.utils.DateUtil;
 import com.github.scaffold.dal.dao.AcctDOMapper;
 import com.github.scaffold.dal.dataobject.AcctDO;
-import com.github.scaffold.hashmap.CurrentHashmap;
-import com.github.scaffold.hashmap.HashmapDeadLock;
 import com.github.scaffold.pressure.DataWarehouse;
 import com.github.scaffold.pressure.enums.AcctTypeEnum;
 
@@ -51,36 +49,15 @@ public class OkController {
     @ResponseBody
     public String HashmapDeadLock(@PathVariable("loopNums") Integer loopNums) {
         log.info("start HashmapDeadLock req:{}次", loopNums);
-        if (null == loopNums || 0 == loopNums) {
-            loopNums = 50;
-        }
-        final int finalLoopNums = loopNums;
-        new Thread(() -> exeHashmapDeadLock(finalLoopNums)).start();
+
         return "STARTED";
     }
 
     @RequestMapping(value = "/currentHashmap/{loopNums}", method = RequestMethod.GET)
     @ResponseBody
     public String currentHashmap(@PathVariable("loopNums") Integer loopNums) {
-        log.info("start currentHashmap req:{}次", loopNums);
-        if (null == loopNums || 0 == loopNums) {
-            loopNums = 50;
-        }
-        final int finalLoopNums = loopNums;
-        new Thread(() -> exeCurrentHashmap(finalLoopNums)).start();
+
         return "STARTED";
-    }
-
-    private void exeCurrentHashmap(final int finalLoopNums) {
-        for (int i = 0; i < finalLoopNums; i++) {
-            CurrentHashmap hash = new CurrentHashmap();
-        }
-    }
-
-    private void exeHashmapDeadLock(final int finalLoopNums) {
-        for (int i = 0; i < finalLoopNums; i++) {
-            HashmapDeadLock dead = new HashmapDeadLock();
-        }
     }
 
     @Autowired

@@ -15,7 +15,12 @@ public class MockOutServiceWithBigData {
 
     public ReturnBigData queryBigData() {
 
-        log.info("收到请求,返回大数据");
+        try {
+            Thread.sleep(2L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        log.debug("收到请求,返回大数据");
         return ReturnBigData.buildBigData();
     }
 
