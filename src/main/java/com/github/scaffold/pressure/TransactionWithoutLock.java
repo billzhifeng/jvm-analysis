@@ -19,7 +19,8 @@ import com.github.scaffold.pressure.enums.FundDircEnum;
 import com.github.scaffold.pressure.req.PayReq;
 
 /**
- * 交易
+ * 交易:A B两账户，A付款 B收款，保存交易记录，保存A 、B的账户变化记录，在一个事务内完成 <br>
+ * 并发时候，账户不安全。
  * 
  * @author wangzhifeng
  * @date 2018年6月13日 下午3:18:39

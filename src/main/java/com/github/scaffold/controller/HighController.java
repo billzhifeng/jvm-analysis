@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.scaffold.high.memory.HighCPU;
+import com.github.scaffold.high.cpu.HighCPU;
 import com.github.scaffold.high.memory.HignMemory;
 import com.github.scaffold.outService.MockOutServiceWithSleep;
 
@@ -170,12 +170,13 @@ public class HighController {
         log.info("start callCPU ");
 
         for (int i = 0; i < 10; i++) {
-            threadPoolExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    highCpu.loop(maxCount);
-                }
-            });
+            new Thread(() -> highCpu.loop(maxCount)).start();
+            //            threadPoolExecutor.execute(new Runnable() {
+            //                @Override
+            //                public void run() {
+            //                    highCpu.loop(maxCount);
+            //                }
+            //            });
         }
 
         JSONObject json = new JSONObject();
